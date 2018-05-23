@@ -115,7 +115,7 @@ class MessageDispatcher(object):
                 self.event['data']['mentions'])
 
     def loop(self):
-        for self.event in self._client.messages(True, 
+        for self.event in self._client.messages(True,
                                         ['posted', 'added_to_team', 'leave_team', \
                                          'user_added', 'user_removed']):
             if self.event:
@@ -137,16 +137,17 @@ class MessageDispatcher(object):
         for p, v in iteritems(self._plugins.commands['respond_to']):
             key = v.__module__.title().split('.')[1]
             if not key in modules:
-                modules[key] = [] 
-            modules[key].append((p.pattern,v.__doc__))
-        
-        docs_fmt = u'\t{1}' if settings.PLUGINS_ONLY_DOC_STRING else u'\t`{0}` - {1}'
+                modules[key] = []
+            modules[key].append(v.__doc__)
 
-        for module,commands in modules.items():
-            default_reply += [u'Plugin: **{}**'.format(module)]
-            commands.sort(key=lambda x: x[0])
-            for pattern,description in commands:
-                default_reply += [docs_fmt.format(pattern,description)]
+        docs_fmt = u'\t{0}' if settings.PLUGINS_ONLY_DOC_STRING else u'\t - {0}'
+
+        for module, commands in modules.items():
+            default_reply += [u'**Available Commands**']
+            # commands.sort(key=lambda x: x)
+            for description in commands:
+                if description:
+                    default_reply += [docs_fmt.format(description)]
 
         self._client.channel_msg(
             msg['data']['post']['channel_id'], '\n'.join(default_reply))
